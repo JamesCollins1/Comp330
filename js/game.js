@@ -70,7 +70,7 @@ function rand(min, max) {
 }
 
 // Sets the player's ship location, the ship sprite and
-function createPlayer(container) {
+function createPlayer(query) {
     //Sets the player's starting location
     GameState.playerX = GameWidth / 2;
     GameState.playerY = GameHeight - 50;
@@ -78,20 +78,20 @@ function createPlayer(container) {
     const player = document.createElement("img");
     player.src = "img/player-blue-1.png";
     player.className = "player";
-    container.appendChild(player);
+    query.appendChild(player);
     setPosition(player, GameState.playerX, GameState.playerY);
 }
 
 //Destroys the player character and calls the game over state
-function destroyPlayer(container, player) {
-    container.removeChild(player);
+function destroyPlayer(query, player) {
+    query.removeChild(player);
     GameState.gameOver = true;
     const audio = new Audio("sound/sfx-lose.ogg");
     audio.play();
 }
 
 //Moves the player sprite when either right arrow key or left arrow key is pressed.
-function updatePlayer(dt, container) {
+function updatePlayer(dt, querySelector) {
     if (GameState.leftPressed) {
         GameState.playerX -= dt * PlayerMaxSpeed;
     }
@@ -102,7 +102,7 @@ function updatePlayer(dt, container) {
     GameState.playerX = clamp(GameState.playerX, PlayerWidth, GameWidth - PlayerWidth);
 
     if (GameState.spacePressed && GameState.playerCooldown <= 0) {
-        createLaser(container, GameState.playerX, GameState.playerY);
+        createLaser(querySelector, GameState.playerX, GameState.playerY);
         GameState.playerCooldown = LaserCooldown;
     }
     if (GameState.playerCooldown > 0) {
@@ -114,11 +114,11 @@ function updatePlayer(dt, container) {
 }
 
 //Spawns a laser and for the player
-function createLaser(container, x, y) {
+function createLaser(query, x, y) {
     const element = document.createElement("img");
     element.src = "img/laser-blue-1.png";
     element.className = "laser";
-    container.appendChild(element);
+    query.appendChild(element);
     const laser = { x, y, element };
     GameState.lasers.push(laser);
     const audio = new Audio("sound/sfx-laser1.ogg");
@@ -127,13 +127,13 @@ function createLaser(container, x, y) {
 }
 
 //Moves the players laser towards the enemies and checks for if the enemy is hit
-function updateLasers(dt, container) {
+function updateLasers(dt, querySelector) {
     const lasers = GameState.lasers;
     for (let i = 0; i < lasers.length; i++) {
         const laser = lasers[i];
         laser.y -= dt * LaserMaxSpeed;
         if (laser.y < 0) {
-            destroyLaser(container, laser);
+            destroyLaser(querySelector, laser);
         }
         setPosition(laser.element, laser.x, laser.y);
         const r1 = laser.element.getBoundingClientRect();
@@ -145,8 +145,8 @@ function updateLasers(dt, container) {
             const r2 = enemy.element.getBoundingClientRect();
             if (rectsIntersect(r1, r2)) {
                 // Enemy was hit
-                destroyEnemy(container, enemy);
-                destroyLaser(container, laser);
+                destroyEnemy(querySelector, enemy);
+                destroyLaser(querySelector, laser);
                 GameState.score ++;
                 break;
             }
@@ -156,24 +156,24 @@ function updateLasers(dt, container) {
 }
 
 //If it missed then delete the laser
-function destroyLaser(container, laser) {
-    container.removeChild(laser.element);
+function destroyLaser(querySelector, laser) {
+    querySelector.removeChild(laser.element);
     laser.isDead = true;
 }
 
-//Creats the enemy and assigns it a sprite
-function createEnemy(container, x, y) {
+//Creates the enemy and assigns it a sprite
+function createEnemy(querySelector, x, y) {
     const element = document.createElement("img");
     element.src = "img/enemy-black-1.png";
     element.className = "enemy";
-    container.appendChild(element);
+    querySelector.appendChild(element);
     const enemy = {x, y, cooldown: rand(0.5, EnemyCooldown), element};
     GameState.enemies.push(enemy);
     setPosition(element, x, y);
 }
 
 //Updates the enemy's movement and shooting cooldown
-function updateEnemies(dt, container) {
+function updateEnemies(dt, query) {
     const dx = Math.sin(GameState.lastTime / 1000.0) * 50;
     const dy = Math.cos(GameState.lastTime / 1000.0) * 10;
     const enemies = GameState.enemies;
@@ -185,7 +185,7 @@ function updateEnemies(dt, container) {
         enemy.cooldown -= dt;
         //Shoot a laser if cooldown allows it
         if (enemy.cooldown <= 0) {
-            createEnemyLaser(container, x, y);
+            createEnemyLaser(query, x, y);
             enemy.cooldown = EnemyCooldown;
         }
     }
@@ -193,30 +193,30 @@ function updateEnemies(dt, container) {
 }
 
 //Deals with the removal of enemies.
-function destroyEnemy(container, enemy) {
-    container.removeChild(enemy.element);
+function destroyEnemy(query, enemy) {
+    query.removeChild(enemy.element);
     enemy.isDead = true;
 }
 
 //Creates the enemy laser and assigns it a sprite
-function createEnemyLaser(container, x, y) {
+function createEnemyLaser(query, x, y) {
     const element = document.createElement("img");
     element.src = "img/laser-red-5.png";
     element.className = "enemy-laser";
-    container.appendChild(element);
+    query.appendChild(element);
     const laser = { x, y, element };
     GameState.enemyLasers.push(laser);
     setPosition(element, x, y);
 }
 
 // Updates the enemy's laser position and checks if it has hit the player
-function updateEnemyLasers(dt, container) {
+function updateEnemyLasers(dt, query) {
     const lasers = GameState.enemyLasers;
     for (let i = 0; i < lasers.length; i++) {
         const laser = lasers[i];
         laser.y += dt * LaserMaxSpeed;
         if (laser.y > GameHeight) {
-            destroyLaser(container, laser);
+            destroyLaser(query, laser);
         }
         setPosition(laser.element, laser.x, laser.y);
         const r1 = laser.element.getBoundingClientRect();
@@ -224,7 +224,7 @@ function updateEnemyLasers(dt, container) {
         const r2 = player.getBoundingClientRect();
         if (rectsIntersect(r1, r2)) {
              // Player was hit
-            destroyPlayer(container, player);
+            destroyPlayer(query, player);
             break;
         }
     }
@@ -233,15 +233,15 @@ function updateEnemyLasers(dt, container) {
 
 //Initialisation function This starts the game
 function init() {
-    const container = document.querySelector(".game");
-    createPlayer(container);
+    const query = document.querySelector(".game");
+    createPlayer(query);
 
     const enemySpacing = (GameWidth - EnemyHorizontalPadding * 2) / (EnemiesPerRow - 1);
     for (let j = 0; j < 3; j++) {
         const y = EnemyVerticalPadding + j * EnemyVerticalSpacing;
         for (let i = 0; i < EnemiesPerRow; i++) {
             const x = i * enemySpacing + EnemyHorizontalPadding;
-            createEnemy(container, x, y);
+            createEnemy(query, x, y);
         }
     }
 }
@@ -266,11 +266,11 @@ function update() {
         return;
     }
 
-    const container = document.querySelector(".game");
-    updatePlayer(dt, container);
-    updateLasers(dt, container);
-    updateEnemies(dt, container);
-    updateEnemyLasers(dt, container);
+    const querySelector = document.querySelector(".game");
+    updatePlayer(dt, querySelector);
+    updateLasers(dt, querySelector);
+    updateEnemies(dt, querySelector);
+    updateEnemyLasers(dt, querySelector);
 
     GameState.lastTime = currentTime;
     window.requestAnimationFrame(update);
