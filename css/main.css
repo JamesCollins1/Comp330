@@ -43,13 +43,13 @@ footer {
   width: 800px;
   height: 600px;
   background: url(../img/background-blue.png);
-  animation: scroll-background 5s linear infinite;
+  animation: ScrollBackground 5s linear infinite;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   position: relative;
 }
 
 /*Small animations to scroll the background*/
-@keyframes scroll-background {
+@keyframes ScrollBackground {
   from {
     background-position-y: 0px;
   }
@@ -92,7 +92,7 @@ footer {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
   text-align: center;
-  animation: pop-in 1s;
+  animation: PopIn 1s;
 }
 /*The game over info box visual style*/
 .game-over {
@@ -104,7 +104,7 @@ footer {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
   text-align: center;
-  animation: pop-in 1s;
+  animation: PopIn 1s;
 }
 
 /*The button class, contains all info on the visual style of the buttons*/
@@ -123,7 +123,7 @@ footer {
   font: 14px sans-serif;
 }
 /*A small animation for the info boxes to use*/
-@keyframes pop-in {
+@keyframes PopIn {
   0% {
     opacity: 0;
     transform: translate(0, -100px);
